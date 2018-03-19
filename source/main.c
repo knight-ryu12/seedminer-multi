@@ -4,32 +4,37 @@
 #include <pthread.h>
 #include <openssl/sha.h>
 
-
-
-
-
-
 void sha256(SHA256_CTX *c,uint8_t *s,uint32_t slen, uint8_t *buf) { // No INIT
 	SHA256_Init(c);
 	SHA256_Update(c,s,slen);
 	SHA256_Final(buf,c);
 }
 
-
 void *thread(void *arg)
 {
 	uint8_t *arg2 = (uint8_t *)arg;
 	uint8_t buf[SHA_DIGEST_LENGTH];
-    	SHA256_CTX c; //define only once at internal
-    	char *a = "1";
+    SHA256_CTX c; //define only once at internal
+    char *a = "1";
 	sha256(&c,a,1,buf);
-    	for(int i =0; i < SHA256_DIGEST_LENGTH; i++) {
-    		printf("%02X",buf[i]);
-    	}
-    	printf("thread %d\n", *arg2);
-    	pthread_exit(arg2);
+    for(int i =0; i < SHA256_DIGEST_LENGTH; i++) {
+    	printf("%02X",buf[i]);
+    }
+    printf("thread %d\n", *arg2);
+    pthread_exit(arg2);
 }
-int main() {
+
+int main(int argc, char **argv) 
+{
+	if(argc != 3)
+	{
+		printf("Wrong usage. seedminer <ID0> <KeyY>");
+		exit(1);
+	}
+	
+	uint64_t ID0 = strtoul(argv[1], NULL, 16);
+	uint64_t KEY_Y = strtoul(argv[1], NULL, 16);
+	
     pthread_t thread_t[8];
     void *ret;
     for(int i = 0; i < 8; i++)

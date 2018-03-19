@@ -1,1 +1,1 @@
-gcc -O2 -g3 -lcrypto -lpthread test.c -o test
+gcc -O2 -g3 source/main.c -o seedminer -lpthread -lcrypto
