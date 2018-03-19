@@ -24,6 +24,28 @@ void *thread(void *arg)
 	pthread_exit(arg2);
 }
 
+
+char *get_data_nodes(bool isNew, size_t *size)
+{
+	FILE *file = fopen(isNew ? "nodes/lfcs_new.dat", "nodes/lfcs.dat");
+	if(file == NULL)
+	{
+		printf("No lfcs_new.dat/lfcs.dat found");
+		return "ERROR";
+	}
+	
+	fseek(file, 0L, SEEK_END);
+	size_t sz = ftell(file);
+	rewind(file);
+	char *tmpbuf = malloc(sizeof(char*) * sz);
+	if(tmpbuf == NULL) return "ERROR";
+	fread(tmpbuf, sz, 1, file);
+	fclose(file);
+	
+	*size = sz;
+	return tmpbuf;
+}
+
 int main(int argc, char **argv) 
 {
 	if(argc != 3)
@@ -34,6 +56,17 @@ int main(int argc, char **argv)
 	
 	uint64_t ID0 = strtoul(argv[1], NULL, 16);
 	uint64_t LFCS = strtoul(argv[1], NULL, 16);
+	
+	uint8_t *_LFCS = u64_to_u8(LFCS);
+	
+	size_t nodes_size = 0;
+	char *nodes = get_data_nodes(_LFCS[4] == 2, &nodes_size); // check new-3ds flag
+	if(strcmp(nodes, "ERROR") == 0) exit(2);
+	
+	char **nodes_info = parse_data_nodes(nodes, nodes_size);
+	
+	uint8_t hashword[4];
+	sscanf(ID0, "%08X%08X%08X%08X", hashword[0], hashword[1], hashword[2], hashword[3]);
 	
 	pthread_t thread_t[8];
 	void *ret;
