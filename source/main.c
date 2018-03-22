@@ -27,13 +27,15 @@ void *thread(void *arg)
 
 char *get_data_nodes(bool isNew, size_t *size)
 {
-	FILE *file = fopen(isNew ? "nodes/lfcs_new.dat", "nodes/lfcs.dat");
+	FILE *file;
+	if(isNew) file = fopen("nodes/lfcs_new.dat");
+	else file = fopen("nodes/lfcs.dat");
+	//FILE *file = fopen(isNew ? "nodes/lfcs_new.dat", "nodes/lfcs.dat");
 	if(file == NULL)
 	{
 		printf("No lfcs_new.dat/lfcs.dat found");
 		return "ERROR";
 	}
-	
 	fseek(file, 0L, SEEK_END);
 	size_t sz = ftell(file);
 	rewind(file);
